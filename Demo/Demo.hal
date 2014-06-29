@@ -1,0 +1,86 @@
+# set logging to 'pretty high'
+log rt 5
+log user 5
+
+# start haltalk server
+# add -d or -d -d to log message transactions
+loadusr -W haltalk
+
+loadrt threads period1=1000000 name1=thread
+loadrt kalman
+loadrt hal_bb_gpio output_pins=107,108,109 input_pins=117,116
+
+loadusr -Wn gyroaccel python/gyroaccel.py --name gyroaccel --bus_id 1 --interval 0.1
+
+
+# ################################################
+# THREADS
+# ################################################
+addf bb_gpio.read                         thread
+addf bb_gpio.write                        thread
+addf kalman.0                             thread
+
+start
+
+#setp bb_gpio.p8.out-07 0 # Yellow
+#setp bb_gpio.p8.out-08 0 # Green
+#setp bb_gpio.p8.out-09 0 # Red
+#bb_gpio.p8.in-17 # Button 1
+#bb_gpio.p8.in-16 # Button 2
+
+# ################################################
+# REMOTE COMPONENT
+# ################################################
+# wait the halcmd script until the UI has created the remote component 'motorctrl':
+# waitexists control
+
+# OR preconfigure the remote component like so
+# in this case no waiting required
+# pin count, name, type, direction must match exactly what
+# is in the GUI
+newcomp control timer=100 acceptdefaults
+newpin  control control.ledG    bit out
+newpin  control control.ledY    bit out
+newpin  control control.ledR    bit out
+newpin  control control.ledGV   bit in
+newpin  control control.ledYV   bit in
+newpin  control control.ledRV   bit in
+newpin  control control.button1    bit in
+newpin  control control.button2    bit in
+newpin  control control.rate       float in
+ready   control
+
+setp control.ledG 1
+setp control.ledY 1
+setp control.ledR 1
+
+newsig ack     bit
+newsig request bit
+
+net ack <= gyroaccel.acknowledge
+net ack => kalman.0.acknowledge
+net request => gyroaccel.request
+net request <= kalman.0.request
+
+newsig ledG bit
+newsig ledY bit
+newsig ledR bit
+newsig button1 bit
+newsig button2 bit
+newsig rate float
+
+net ledG <= control.ledG
+net ledG => bb_gpio.p8.out-08
+net ledG => control.ledGV
+net ledY <= control.ledY
+net ledY => bb_gpio.p8.out-07
+net ledY => control.ledYV
+net ledR <= control.ledR
+net ledR => bb_gpio.p8.out-09
+net ledR => control.ledRV
+net button1 => control.button1
+net button1 <= bb_gpio.p8.in-17
+net button2 => control.button2
+net button2 <= bb_gpio.p8.in-16
+net rate => control.rate
+net rate <= gyroaccel.rate

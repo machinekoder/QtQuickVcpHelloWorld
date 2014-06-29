@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>HelloWorld.Control/Control.qml</file>
+        <file>HelloWorld.Control/description.ini</file>
+        <file>HelloWorld.Test/description.ini</file>
+        <file>HelloWorld.Test/Test.qml</file>
+        <file>HelloWorld.Test/TestControl.qml</file>
+    </qresource>
+</RCC>
