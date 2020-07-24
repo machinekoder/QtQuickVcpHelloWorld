@@ -7,9 +7,9 @@ import time
 
 class L3GD20(object):
     
-    def __init__(self, busId, slaveAddr, ifLog, ifWriteBlock):
+    def __init__(self, busId, subordinateAddr, ifLog, ifWriteBlock):
         self.__i2c = SMBus(busId)
-        self.__slave = slaveAddr
+        self.__subordinate = subordinateAddr
         self.__ifWriteBlock = ifWriteBlock
         self.__ifLog = ifLog
         self.__x0 = 0
@@ -25,15 +25,15 @@ class L3GD20(object):
         print('Change in register:' + register + ' mask:' + mask + ' from:' + current + ' to:' + new)
         
     def __writeToRegister(self, register, mask, value):
-        current = self.__i2c.read_byte_data(self.__slave, register)  # Get current value
+        current = self.__i2c.read_byte_data(self.__subordinate, register)  # Get current value
         new = bitOps.SetValueUnderMask(value, current, mask)
         if self.__ifLog:
             self.__log(register, mask, current, new)
         if  not self.__ifWriteBlock:
-            self.__i2c.write_byte_data(self.__slave, register, new)
+            self.__i2c.write_byte_data(self.__subordinate, register, new)
         
     def __readFromRegister(self, register, mask):
-        current = self.__i2c.read_byte_data(self.__slave, register)   # Get current value
+        current = self.__i2c.read_byte_data(self.__subordinate, register)   # Get current value
         return bitOps.GetValueUnderMask(current, mask)
 
     
