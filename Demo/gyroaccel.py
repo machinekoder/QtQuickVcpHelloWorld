@@ -24,7 +24,7 @@ update_interval = float(args.interval)
 
 # Communication object
 gyro = L3GD20(busId=int(args.bus_id),
-              slaveAddr=0x6B,
+              subordinateAddr=0x6B,
               ifLog=False,
               ifWriteBlock=False)
 accel = LSM303DLHC(address_accel=0x19,
